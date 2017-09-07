@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnGetInfo, btnGetHistory, btnSpend;
     private TextView tv;
 
+    private Gson gson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        gson = new Gson();
         initView();
 
     }
@@ -96,14 +99,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void getMyInfo() {
         String baseURL = NetConstant.getMyInfoAddr;
-        OkHttpClient okHttpClient;
-        okHttpClient = MyApplication.getInstance().getOkHttpClient();
+        OkHttpClient okHttpClient = MyApplication.getInstance().getOkHttpClient();
         Request.Builder builder = new Request.Builder();
 
         Map<String, String> map = new HashMap<>();
         map.put("api_key", apiKey);
         String sign = MD5Util.buildMysignV1(map, secretKey);
-        FormBody body = new FormBody.Builder().add("api_key", apiKey).add("sign", sign).build();
+        FormBody body = new FormBody.Builder()
+                .add("api_key", apiKey)
+                .add("sign", sign)
+                .build();
         Request request = builder.url(baseURL).post(body).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -116,11 +121,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onResponse(Call call, Response response) throws IOException {
                 String responseString = response.body().string();
                 //SLog.i(TAG, "Response   body  is " +responseString );
-                Gson gson = new Gson();
 
                 try {
-                    java.lang.reflect.Type type = new TypeToken<MyInfo>() {
-                    }.getType();
+                    java.lang.reflect.Type type = new TypeToken<MyInfo>() {}.getType();
                     MyInfo jsonBean = gson.fromJson(responseString, type);
                     //SLog.i(TAG, "数据为----------" + jsonBean.toString());
                     uiPrintf("数据为----------" + jsonBean.toString());
@@ -135,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void getHistory(String since, String symbol) {
         String baseURL = NetConstant.getHistoryAddr;
-        OkHttpClient okHttpClient;
-        okHttpClient = MyApplication.getInstance().getOkHttpClient();
+        OkHttpClient okHttpClient = MyApplication.getInstance().getOkHttpClient();
         Request.Builder builder = new Request.Builder();
 
         Map<String, String> map = new HashMap<>();
@@ -145,24 +147,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         map.put("symbol", symbol);
 
         String sign = MD5Util.buildMysignV1(map, secretKey);
-        FormBody body = new FormBody.Builder().add("api_key", apiKey).add("symbol", symbol).add("since", since).add("sign", sign).build();
+        FormBody body = new FormBody.Builder().add("api_key", apiKey)
+                .add("symbol", symbol)
+                .add("since", since)
+                .add("sign", sign)
+                .build();
         Request request = builder.url(baseURL).post(body).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "ok  get fail");
+                SLog.e(TAG, "ok  get fail");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseString = response.body().string();
                 SLog.i(TAG, "Response   body  is " + responseString);
-                Gson gson = new Gson();
 
                 try {
-                    Type lt = new TypeToken<List<History>>() {
-                    }.getType();
+                    Type lt = new TypeToken<List<History>>() {}.getType();
                     final List<History> list = gson.fromJson(responseString, lt);
                     StringBuffer listString = new StringBuffer("数据为=======");
                     for (History h : list) {
@@ -185,16 +189,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Request.Builder builder = new Request.Builder();
 
         Map<String, String> map = new HashMap<>();
-        if (amount != null) ;
-        map.put("amount", amount);
+        if (amount != null) map.put("amount", amount);
         map.put("api_key", apiKey);
-        if (price != null)
-            map.put("price", price);
+        if (price != null) map.put("price", price);
         map.put("symbol", symbol);
         map.put("type", type);
 
         String sign = MD5Util.buildMysignV1(map, secretKey);
-        FormBody body = new FormBody.Builder().add("api_key", apiKey).add("symbol", symbol).add("type", type).add("price", price).add("amount", amount).add("sign", sign).build();
+        FormBody body = new FormBody.Builder()
+                .add("api_key", apiKey)
+                .add("symbol", symbol)
+                .add("type", type)
+                .add("price", price)
+                .add("amount", amount)
+                .add("sign", sign)
+                .build();
         Request request = builder.url(baseURL).post(body).build();
         Call call = okHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -207,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onResponse(Call call, Response response) throws IOException {
                 String responseString = response.body().string();
                 SLog.i(TAG, "Response   body  is " + responseString);
-                Gson gson = new Gson();
 
                 try {
                     java.lang.reflect.Type type = new TypeToken<TradeItem>() {
